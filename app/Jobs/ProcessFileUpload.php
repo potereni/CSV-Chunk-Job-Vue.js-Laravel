@@ -1,14 +1,15 @@
 <?php
 
-
 namespace App\Jobs;
 
-use App\Models\FileChunk;
+use App\Models\CorrectCsvRecord;
+use App\Models\IncorrectCsvRecord;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use League\Csv\Reader;
 
 class ProcessFileUpload implements ShouldQueue
 {
@@ -23,39 +24,51 @@ class ProcessFileUpload implements ShouldQueue
 
     public function handle()
     {
-        // Получаем все чанки для данного файла
-        $chunks = FileChunk::where('file_name', $this->fileName)->post();
-
-        // Обработка каждого чанка
-        $validChunks = 0;
-        $errorChunks = [];
-
-        foreach ($chunks as $chunk) {
-            // Проверяем чанк на корректность
-            if ($this->isValidChunk($chunk->chunk_data)) {
-                $validChunks++;
+        // Путь к загруженному CSV файлу
+        $filePath = storage_path('app/uploads/' . $this->fileName);
+        
+        // Создание Reader объекта для чтения CSV файла
+        $reader = Reader::createFromPath($filePath);
+        
+        // Инициализируем счетчики правильных и неправильных записей
+        $correctCount = 0;
+        $incorrectCount = 0;
+        
+        // Чтение CSV файла
+        foreach ($reader as $rowIndex => $row) {
+            // Выводим отладочную информацию для каждой строки
+            echo "Обработка строки $rowIndex: " . implode(', ', $row) . PHP_EOL;
+        
+            // Проверка, является ли строка правильной
+            if ($this->isValidRow($row)) {
+                // Увеличиваем счетчик правильных записей
+                $correctCount++;
             } else {
-                $errorChunks[] = $chunk->chunk_data;
+                // Увеличиваем счетчик неправильных записей
+                $incorrectCount++;
             }
         }
-
+        
         // Выводим результаты
-        $totalChunks = $chunks->count();
-        $validPercentage = $totalChunks > 0 ? ($validChunks / $totalChunks) * 100 : 0;
-
-        echo "Всего чанков: $totalChunks\n";
-        echo "Количество успешно обработанных чанков: $validChunks\n";
-        echo "Процент успешных чанков: $validPercentage%\n";
-
-        echo "\nЧанки-ошибки:\n";
-        foreach ($errorChunks as $errorChunk) {
-            echo $errorChunk . "\n";
-        }
+        echo "Количество правильных записей: $correctCount\n";
+        echo "Количество неправильных записей: $incorrectCount\n";
     }
-
-    protected function isValidChunk($data)
+    protected function isValidRow($row)
     {
-        // Проверяем, содержит ли чанк только слова
-        return preg_match('/^[a-zA-Z\s]+$/', $data);
+        // Если строка пустая, считаем ее неправильной
+        if (empty($row)) {
+            return false;
+        }
+    
+        // Проверка каждой ячейки в строке
+        foreach ($row as $cell) {
+            // Проверка, содержит ли ячейка только слова
+            if (!preg_match('/^[a-zA-Zа-яА-Я\s]+$/', $cell)) {
+                // Если найдены недопустимые символы, считаем строку неправильной
+                return false;
+            }
+        }
+        // Если все ячейки в строке содержат только слова, считаем строку правильной
+        return true;
     }
 }

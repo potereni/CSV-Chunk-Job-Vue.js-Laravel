@@ -5,7 +5,7 @@ use App\Http\Controllers\FileUploadController;
 
 Route::post('/upload', [FileUploadController::class, 'upload'])->name('upload');
 Route::get('/results', [FileUploadController::class, 'results'])->name('results');
-Route::get('/upload', [FileUploadController::class, 'getUpload'])->name('api.upload');
+
 
 /*
 |--------------------------------------------------------------------------

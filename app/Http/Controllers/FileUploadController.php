@@ -36,16 +36,14 @@ class FileUploadController extends Controller
     return response()->json(['message' => 'Файл успешно загружен и отправлен на обработку.']);
 }
 
-public function results(Request $request)
-{
-    // Получение результатов загрузки
-    $chunks = FileChunk::all();
+    public function results(Request $request)
+    {
+        // Получение имени файла из запроса или передайте его как параметр
+        $fileName = $request->input('fileName');
 
-    return response()->json(['chunks' => $chunks]);
-}
-public function getUpload()
-{
-    // Возвращаем какие-то данные или сообщение
-    return response()->json(['message' => 'GET-запрос к /api/upload успешно обработан']);
-}
+        // Получение результатов загрузки
+        $chunks = FileChunk::where('file_name', $fileName)->get();
+
+        return response()->json(['chunks' => $chunks]);
+    }
 }

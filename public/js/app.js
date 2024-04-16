@@ -1927,9 +1927,9 @@ __webpack_require__.r(__webpack_exports__);
       this.uploading = true;
       var formData = new FormData();
       formData.append('file', this.selectedFile);
-      axios.get('/api/upload', formData).then(function (response) {
+      axios.post('/api/upload', formData).then(function (response) {
         console.log(response.data);
-        _this.$emit('upload-success', response.data); // Эмитируем событие upload-success и передаем результаты загрузки
+        _this.$emit('upload-success', response.data);
         _this.uploading = false;
         _this.selectedFile = null;
       })["catch"](function (error) {

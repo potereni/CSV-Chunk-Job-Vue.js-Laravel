@@ -25,17 +25,17 @@
         this.uploading = true;
         let formData = new FormData();
         formData.append('file', this.selectedFile);
-        axios.get('/api/upload', formData)
-          .then(response => {
-            console.log(response.data);
-            this.$emit('upload-success', response.data); // Эмитируем событие upload-success и передаем результаты загрузки
-            this.uploading = false;
-            this.selectedFile = null;
-          })
-          .catch(error => {
-            console.error(error);
-            this.uploading = false;
-          });
+        axios.post('/api/upload', formData)
+        .then(response => {
+          console.log(response.data);
+          this.$emit('upload-success', response.data);
+          this.uploading = false;
+          this.selectedFile = null;
+        })
+        .catch(error => {
+          console.error(error);
+          this.uploading = false;
+        });
       }
     }
   };
