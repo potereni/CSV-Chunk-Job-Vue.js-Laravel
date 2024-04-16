@@ -23,52 +23,51 @@ class ProcessFileUpload implements ShouldQueue
     }
 
     public function handle()
-    {
-        // Путь к загруженному CSV файлу
-        $filePath = storage_path('app/uploads/' . $this->fileName);
-        
-        // Создание Reader объекта для чтения CSV файла
-        $reader = Reader::createFromPath($filePath);
-        
-        // Инициализируем счетчики правильных и неправильных записей
-        $correctCount = 0;
-        $incorrectCount = 0;
-        
-        // Чтение CSV файла
-        foreach ($reader as $rowIndex => $row) {
-            // Выводим отладочную информацию для каждой строки
-            echo "Обработка строки $rowIndex: " . implode(', ', $row) . PHP_EOL;
-        
-            // Проверка, является ли строка правильной
-            if ($this->isValidRow($row)) {
-                // Увеличиваем счетчик правильных записей
+{
+    // Путь к загруженному CSV файлу
+    $filePath = storage_path('app/uploads/' . $this->fileName);
+    
+    // Создание Reader объекта для чтения CSV файла
+    $reader = Reader::createFromPath($filePath);
+    
+    // Инициализируем счетчики правильных и неправильных записей
+    $correctCount = 0;
+    $incorrectCount = 0;
+    
+    // Чтение CSV файла
+    foreach ($reader as $rowIndex => $row) {
+        // Выводим отладочную информацию для каждого слова в строке
+        foreach ($row as $word) {
+            echo "Обработка слова \"$word\" в строке $rowIndex\n";
+    
+            // Проверка, является ли слово правильным
+            if ($this->isValidWord($word)) {
+                // Увеличиваем счетчик правильных слов
                 $correctCount++;
             } else {
-                // Увеличиваем счетчик неправильных записей
+                // Увеличиваем счетчик неправильных слов
                 $incorrectCount++;
             }
         }
-        
-        // Выводим результаты
-        echo "Количество правильных записей: $correctCount\n";
-        echo "Количество неправильных записей: $incorrectCount\n";
     }
-    protected function isValidRow($row)
-    {
-        // Если строка пустая, считаем ее неправильной
-        if (empty($row)) {
-            return false;
-        }
     
-        // Проверка каждой ячейки в строке
-        foreach ($row as $cell) {
-            // Проверка, содержит ли ячейка только слова
-            if (!preg_match('/^[a-zA-Zа-яА-Я\s]+$/', $cell)) {
-                // Если найдены недопустимые символы, считаем строку неправильной
-                return false;
-            }
-        }
-        // Если все ячейки в строке содержат только слова, считаем строку правильной
+    // Выводим результаты
+    echo "Количество правильных слов: $correctCount\n";
+    echo "Количество неправильных слов: $incorrectCount\n";
+}
+
+protected function isValidWord($word)
+{
+    // Удаление лишних пробелов в начале и конце слова
+    $word = trim($word);
+
+    // Проверка, содержит ли слово только буквы
+    if (preg_match('/^[a-zA-Zа-яА-Я\s]+$/', $word)) {
+        // Если слово состоит только из букв, считаем его правильным
         return true;
+    } else {
+        // Иначе считаем слово неправильным
+        return false;
     }
+}
 }
