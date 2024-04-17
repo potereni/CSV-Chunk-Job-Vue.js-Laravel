@@ -1957,17 +1957,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      uploadResults: [] // Здесь будут храниться результаты загрузки файла
+      correctCount: 0,
+      incorrectCount: 0
     };
   },
   created: function created() {
     this.fetchUploadResults();
+    // Обновление данных каждые 5 секунд (5000 миллисекунд)
+    setInterval(this.fetchUploadResults, 500);
   },
   methods: {
     fetchUploadResults: function fetchUploadResults() {
       var _this = this;
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/results').then(function (response) {
-        _this.uploadResults = response.data.chunks;
+        var data = response.data;
+        _this.correctCount = data.correctCount;
+        _this.incorrectCount = data.incorrectCount;
       })["catch"](function (error) {
         console.error('Ошибка при получении результатов загрузки:', error);
       });
@@ -2027,11 +2032,7 @@ __webpack_require__.r(__webpack_exports__);
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("h2", [_vm._v("Результаты загрузки")]), _vm._v(" "), _c("ul", _vm._l(_vm.uploadResults, function (result, index) {
-    return _c("li", {
-      key: index
-    }, [_vm._v("\n      " + _vm._s(result.message) + "\n    ")]);
-  }), 0)]);
+  return _c("div", [_c("h2", [_vm._v("Результаты загрузки")]), _vm._v(" "), _c("p", [_vm._v("Количество правильных записей: " + _vm._s(_vm.correctCount))]), _vm._v(" "), _c("p", [_vm._v("Количество неправильных записей: " + _vm._s(_vm.incorrectCount))])]);
 };
 var staticRenderFns = [];
 render._withStripped = true;
