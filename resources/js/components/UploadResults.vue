@@ -18,8 +18,6 @@ export default {
   },
   created() {
     this.fetchUploadResults();
-    // Обновление данных каждые 5 секунд (5000 миллисекунд)
-    setInterval(this.fetchUploadResults, 500);
   },
   methods: {
     fetchUploadResults() {
